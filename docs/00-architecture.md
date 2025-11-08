@@ -396,38 +396,131 @@ Terminal Display
 
 ---
 
-## 5. Design Patterns
+## 5. Vertical Slices Overview
 
-### 5.1 Observer Pattern
+SlayerGit is developed through **12 vertical slices**, each delivering end-to-end user value. Slices are implemented in order, with each building on previous work.
+
+### Priority Levels
+- **P0 - Foundation:** Must have for basic functionality
+- **P1 - Important:** Core features for daily use
+- **P2 - Nice to Have:** Advanced features
+- **P3 - Polish:** Refinements and customization
+
+### Slice List
+
+| # | Slice Name | User Value | Priority | Effort | Prerequisites |
+|---|------------|------------|----------|--------|---------------|
+| 01 | [UI Panels and Navigation](slices/01-ui-panels-navigation.md) | Navigate between windows and tabs with keyboard | P0 | 3-5 days | None |
+| 02 | [Git Status Integration](slices/02-git-status-integration.md) | See unstaged and staged files from Git | P0 | 2-3 days | Slice 01 |
+| 03 | [File Staging Operations](slices/03-file-staging-operations.md) | Stage and unstage files with keyboard shortcuts | P0 | 1-2 days | Slice 02 |
+| 04 | [Commit Creation](slices/04-commit-creation.md) | Create commits with messages | P0 | 1-2 days | Slice 03 |
+| 05 | [Branch Viewing & Switching](slices/05-branch-viewing-switching.md) | View and checkout branches | P1 | 2 days | Slice 02 |
+| 06 | [Commit History Viewing](slices/06-commit-history-viewing.md) | View commit log | P1 | 1-2 days | Slice 02 |
+| 07 | [Diff Viewing](slices/07-diff-viewing.md) | See diffs for files and commits | P1 | 2-3 days | Slices 02, 03, 06 |
+| 08 | [Stash Operations](slices/08-stash-operations.md) | Create and manage stashes | P2 | 1-2 days | Slice 02 |
+| 09 | [Reflog Viewing](slices/09-reflog-viewing.md) | View reflog entries | P2 | 1 day | Slices 02, 06 |
+| 10 | [Branch Management](slices/10-branch-management.md) | Create, delete, rename branches | P2 | 1-2 days | Slice 05 |
+| 11 | [Remote Operations](slices/11-remote-operations.md) | Fetch, pull, push to remotes | P2 | 2-3 days | Slice 05 |
+| 12 | [Configuration & Theming](slices/12-configuration-theming.md) | Customize colors and key bindings | P3 | 2-3 days | None |
+
+### Dependency Graph
+
+```mermaid
+graph TD
+    S01[01: UI Panels]
+    S02[02: Git Status]
+    S03[03: Staging]
+    S04[04: Commit]
+    S05[05: Branches]
+    S06[06: History]
+    S07[07: Diffs]
+    S08[08: Stashes]
+    S09[09: Reflog]
+    S10[10: Branch Mgmt]
+    S11[11: Remotes]
+    S12[12: Config]
+    
+    S01 --> S02
+    S02 --> S03
+    S03 --> S04
+    S02 --> S05
+    S02 --> S06
+    S02 --> S07
+    S03 --> S07
+    S06 --> S07
+    S02 --> S08
+    S02 --> S09
+    S06 --> S09
+    S05 --> S10
+    S05 --> S11
+```
+
+### Implementation Path
+
+**Recommended implementation order for a fully functional app:**
+
+**Phase 1 - MVP (P0 slices):**
+1. Slice 01 - UI foundation
+2. Slice 02 - See repository status
+3. Slice 03 - Stage/unstage files
+4. Slice 04 - Create commits
+
+**Phase 2 - Core Features (P1 slices):**
+5. Slice 05 - Branch viewing and switching
+6. Slice 06 - Commit history
+7. Slice 07 - Diff viewing
+
+**Phase 3 - Advanced Features (P2 slices):**
+8. Slice 08 - Stash operations
+9. Slice 09 - Reflog viewing
+10. Slice 10 - Branch management
+11. Slice 11 - Remote operations
+
+**Phase 4 - Polish (P3 slices):**
+12. Slice 12 - Configuration and theming
+
+**After Phase 1 (Slices 01-04):** You have a working Git TUI for basic workflows (view status, stage files, commit).
+
+**After Phase 2 (Slices 01-07):** You have a feature-complete TUI for most daily Git tasks.
+
+**After Phase 3 (Slices 01-11):** You have an advanced Git TUI comparable to Lazygit.
+
+**After Phase 4 (All slices):** You have a polished, customizable Git TUI.
+
+---
+
+## 6. Design Patterns
+
+### 6.1 Observer Pattern
 - **Used For:** State change notifications
 - **Components:** AppState (Subject), Tabs (Observers)
 - **Benefit:** Decouples state management from UI
 
-### 5.2 Command Pattern
+### 6.2 Command Pattern
 - **Used For:** User actions and Git operations
 - **Components:** Command interface, concrete commands, CommandDispatcher
 - **Benefit:** Encapsulates operations, enables undo/redo, async execution
 
-### 5.3 Repository Pattern
+### 6.3 Repository Pattern
 - **Used For:** Git data access abstraction
 - **Components:** GitRepository
 - **Benefit:** Clean API for Git operations, testable
 
-### 5.4 Singleton Pattern
+### 6.4 Singleton Pattern
 - **Used For:** Configuration management
 - **Components:** Configuration
 - **Benefit:** Global access to settings
 
-### 5.5 Factory Pattern (Future)
+### 6.5 Factory Pattern (Future)
 - **Used For:** Creating tabs and windows dynamically
 - **Components:** TabFactory, WindowFactory (to be added if needed)
 - **Benefit:** Flexible window/tab creation
 
 ---
 
-## 6. Module Organization
+## 7. Module Organization
 
-### 6.1 Directory Structure
+### 7.1 Directory Structure
 
 ```
 SlayerGit/
@@ -528,10 +621,24 @@ SlayerGit/
 └── docs/                          # Documentation
     ├── kickoff.md
     ├── 00-architecture.md         # This document
-    └── ... (slice documents)
+    ├── decisions_rationale.md
+    ├── adr/                       # Architecture Decision Records
+    └── slices/                    # Vertical slice documents
+        ├── 01-ui-panels-navigation.md
+        ├── 02-git-status-integration.md
+        ├── 03-file-staging-operations.md
+        ├── 04-commit-creation.md
+        ├── 05-branch-viewing-switching.md
+        ├── 06-commit-history-viewing.md
+        ├── 07-diff-viewing.md
+        ├── 08-stash-operations.md
+        ├── 09-reflog-viewing.md
+        ├── 10-branch-management.md
+        ├── 11-remote-operations.md
+        └── 12-configuration-theming.md
 ```
 
-### 6.2 CMake Library Organization
+### 7.2 CMake Library Organization
 
 ```cmake
 # Root CMakeLists.txt
