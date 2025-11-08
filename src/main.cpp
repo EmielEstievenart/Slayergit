@@ -1,39 +1,39 @@
+#include "ui/window_manager.hpp"
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
-#include <ftxui/dom/elements.hpp>
+
+using namespace ftxui;
+using namespace slayergit::ui;
 
 int main() {
-  using namespace ftxui;
-
-  // Create a simple interactive button
+  // Create the screen
   auto screen = ScreenInteractive::Fullscreen();
 
-  std::string quit_text = "Press 'q' to quit";
-  bool should_quit = false;
+  // Create window manager (sets up all windows and tabs)
+  auto window_manager = std::make_unique<WindowManager>();
 
-  auto component = Renderer([&] {
-    return vbox({
-               text("SlayerGit") | bold | center,
-               separator(),
-               text("A blazing-fast Git TUI") | center,
-               separator(),
-               text("Built with FTXUI and Modern C++") | center,
-               filler(),
-               text(quit_text) | dim | center,
-           }) |
-           border | center;
-  });
+  // Create FTXUI component
+  auto component = Renderer([&] { return window_manager->render(); });
 
-  // Handle 'q' key to quit
+  // Capture keyboard events
   component = CatchEvent(component, [&](Event event) {
-    if (event == Event::Character('q')) {
-      should_quit = true;
+    // Handle quit key
+    if (event == Event::Character('q') || event == Event::Character('Q')) {
       screen.ExitLoopClosure()();
       return true;
     }
-    return false;
+
+    // Handle refresh key (F5)
+    if (event == Event::F5) {
+      window_manager->trigger_refresh();
+      return true;
+    }
+
+    // Pass event to window manager
+    return window_manager->handle_event(event);
   });
 
+  // Start the UI loop
   screen.Loop(component);
 
   return 0;
