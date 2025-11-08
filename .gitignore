@@ -1,0 +1,43 @@
+# Build directories (CMake presets create build/<preset-name>)
+build/
+out/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# Build artifacts
+*.exe
+*.out
+*.app
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# IDE/Editor directories
+.vscode/
+.vs/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Debug files
+*.pdb
+*.ilk
+
+# Testing
+Testing/
