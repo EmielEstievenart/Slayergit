@@ -1,40 +1,51 @@
+#include "ui/input_handler.hpp"
 #include "ui/window_manager.hpp"
+
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
+#include <ftxui/dom/elements.hpp>
 
 using namespace ftxui;
 using namespace slayergit::ui;
 
 int main() {
-  // Create the screen
   auto screen = ScreenInteractive::Fullscreen();
 
-  // Create window manager (sets up all windows and tabs)
-  auto window_manager = std::make_unique<WindowManager>();
+  // Create the window manager
+  WindowManager wm;
 
-  // Create FTXUI component
-  auto component = Renderer([&] { return window_manager->render(); });
+  // Create Window 1 with tabs
+  auto window1 = wm.add_window("Window 1");
+  window1->add_tab("Status");
+  window1->add_tab("Changes");
+  window1->add_tab("Staged");
+  window1->add_tab("test");
 
-  // Capture keyboard events
-  component = CatchEvent(component, [&](Event event) {
-    // Handle quit key
-    if (event == Event::Character('q') || event == Event::Character('Q')) {
-      screen.ExitLoopClosure()();
-      return true;
-    }
+  // Create Window 2 with tabs
+  auto window2 = wm.add_window("Window 2");
+  window2->add_tab("Log");
+  window2->add_tab("Branches");
+  window2->add_tab("Remotes");
 
-    // Handle refresh key (F5)
-    if (event == Event::F5) {
-      window_manager->trigger_refresh();
-      return true;
-    }
+  // Create Window 3 with tabs
+  auto window3 = wm.add_window("Window 3");
+  window3->add_tab("Diff");
+  window3->add_tab("Stash");
+  window3->add_tab("Reflog");
 
-    // Pass event to window manager
-    return window_manager->handle_event(event);
+  // Create the input handler
+  InputHandler input_handler(wm);
+  input_handler.set_quit_callback([&screen] { screen.ExitLoopClosure()(); });
+
+  // Create the main component from window manager
+  auto main_component = wm.create_component();
+
+  main_component = CatchEvent(main_component, [&](Event event) {
+    auto result = input_handler.handle_event(event);
+    return result.handled;
   });
 
-  // Start the UI loop
-  screen.Loop(component);
+  screen.Loop(main_component);
 
   return 0;
 }

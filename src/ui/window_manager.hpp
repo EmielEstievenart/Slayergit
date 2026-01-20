@@ -1,50 +1,43 @@
 #pragma once
 
 #include "window.hpp"
-#include <ftxui/component/event.hpp>
+
+#include <ftxui/component/component.hpp>
 #include <ftxui/dom/elements.hpp>
+
 #include <memory>
 #include <vector>
 
-
 namespace slayergit::ui {
 
-/// Manages all windows and focus
-/// Handles numbered key navigation (1-5)
 class WindowManager {
 public:
-  WindowManager();
+  WindowManager() = default;
 
-  /// Add a window to the manager
-  void add_window(std::unique_ptr<Window> window);
+  // Window management
+  void add_window(WindowPtr window);
+  WindowPtr add_window(const std::string &title);
+  void remove_window(size_t index);
+  void remove_window(const std::string &title);
+  [[nodiscard]] size_t window_count() const { return windows_.size(); }
+  [[nodiscard]] WindowPtr get_window(size_t index) const;
+  [[nodiscard]] WindowPtr get_focused_window() const;
 
-  /// Focus window by number
-  void focus_window(int number);
+  // Focus management
+  [[nodiscard]] int focused_window_index() const { return focused_window_; }
+  void focus_window(int index);
+  void focus_next_window();
+  void focus_previous_window();
 
-  /// Get currently focused window
-  Window *get_focused_window() { return _focused_window; }
-
-  /// Render the complete layout (top bar + windows)
-  ftxui::Element render();
-
-  /// Handle keyboard events
-  bool handle_event(ftxui::Event event);
-
-  /// Trigger refresh (F5) - placeholder for Git integration
-  void trigger_refresh();
-
-  /// Check if currently refreshing
-  bool is_refreshing() const { return _is_refreshing; }
+  // Component creation - creates a vertical stack of all windows
+  [[nodiscard]] ftxui::Component create_component();
 
 private:
-  std::vector<std::unique_ptr<Window>> _windows;
-  Window *_focused_window = nullptr;
-  bool _is_refreshing = false;
-
-  // Helper methods
-  void handle_window_key(int number);
-  ftxui::Element render_top_bar();
-  ftxui::Element render_main_layout();
+  std::vector<WindowPtr> windows_;
+  std::vector<ftxui::Component> window_components_;
+  int focused_window_ = 0;
 };
+
+using WindowManagerPtr = std::shared_ptr<WindowManager>;
 
 } // namespace slayergit::ui

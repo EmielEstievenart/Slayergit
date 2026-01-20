@@ -44,18 +44,8 @@ add_subdirectory(submodules/FTXUI)
 
 # UI library - contains all UI components
 add_library(
-  slayergit_ui STATIC
-  src/ui/window.cpp
-  src/ui/window_manager.cpp
-  src/ui/tabs/unstaged_tab.cpp
-  src/ui/tabs/staged_tab.cpp
-  src/ui/tabs/local_branches_tab.cpp
-  src/ui/tabs/remote_branches_tab.cpp
-  src/ui/tabs/tags_tab.cpp
-  src/ui/tabs/commits_tab.cpp
-  src/ui/tabs/reflog_tab.cpp
-  src/ui/tabs/stashes_view.cpp
-  src/ui/tabs/details_view.cpp)
+  slayergit_ui STATIC src/ui/window_tab.cpp src/ui/window.cpp
+                      src/ui/window_manager.cpp src/ui/input_handler.cpp)
 
 target_link_libraries(slayergit_ui PUBLIC ftxui::screen ftxui::dom
                                           ftxui::component)

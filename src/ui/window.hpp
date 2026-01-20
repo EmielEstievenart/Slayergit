@@ -1,52 +1,59 @@
 #pragma once
 
-#include "tab.hpp"
-#include <ftxui/component/event.hpp>
-#include <ftxui/dom/elements.hpp>
-#include <memory>
-#include <vector>
+#include "window_tab.hpp"
 
+#include <ftxui/component/component.hpp>
+#include <ftxui/dom/elements.hpp>
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace slayergit::ui {
 
-/// A window contains one or more tabs
-/// Pressing the window's number key cycles through its tabs
 class Window {
 public:
-  Window(int number, std::vector<std::unique_ptr<Tab>> tabs);
+  explicit Window(std::string title);
 
-  /// Get window number (1-5)
-  int get_number() const { return _number; }
+  [[nodiscard]] const std::string &title() const { return title_; }
+  void set_title(std::string title) { title_ = std::move(title); }
 
-  /// Get window title (includes tab names)
-  std::string get_title() const;
+  // Tab management
+  void add_tab(WindowTabPtr tab);
+  void add_tab(const std::string &name);
+  void remove_tab(size_t index);
+  void remove_tab(const std::string &name);
+  [[nodiscard]] size_t tab_count() const { return tabs_.size(); }
+  [[nodiscard]] WindowTabPtr get_tab(size_t index) const;
+  [[nodiscard]] WindowTabPtr get_current_tab() const;
 
-  /// Cycle to next tab (wraps around)
-  void next_tab();
+  // Selection
+  [[nodiscard]] int selected_tab_index() const { return selected_tab_; }
+  void select_tab(int index);
+  void select_next_tab();
+  void select_previous_tab();
 
-  /// Get current tab index
-  size_t get_current_tab_index() const { return _current_tab_index; }
+  // Active state
+  void set_active(bool active) { is_active_ = active; }
+  [[nodiscard]] bool is_active() const { return is_active_; }
 
-  /// Get pointer to current tab
-  Tab *get_current_tab();
+  // Component creation (call once)
+  [[nodiscard]] ftxui::Component create_component();
 
-  /// Render the window (border + tabs + content)
-  ftxui::Element render();
-
-  /// Called when window gains focus
-  void on_focus();
-
-  /// Called when window loses focus
-  void on_blur();
-
-  /// Handle keyboard events
-  bool handle_event(ftxui::Event event);
+  // Render the window
+  [[nodiscard]] ftxui::Element render();
 
 private:
-  int _number;
-  std::vector<std::unique_ptr<Tab>> _tabs;
-  size_t _current_tab_index = 0;
-  bool _has_focus = false;
+  void rebuild_tab_names();
+
+  std::string title_;
+  std::vector<WindowTabPtr> tabs_;
+  std::vector<std::string> tab_names_; // For Toggle component
+  int selected_tab_ = 0;
+  bool is_active_ = false;
+  ftxui::Component tab_toggle_;
 };
+
+using WindowPtr = std::shared_ptr<Window>;
 
 } // namespace slayergit::ui
